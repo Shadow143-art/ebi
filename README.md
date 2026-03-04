@@ -1,84 +1,73 @@
 # Tracker
 
-Tracker is a modern role-based web app with separate Student and Staff portals, secure authentication, student profiles, friends, and messaging.
+Tracker is a role-based web app with Student and Staff portals, profile management, friend/contact requests, and messaging.
 
 ## Stack
 - Frontend: React + Vite + Framer Motion
 - Backend: Node.js + Express + MongoDB (Mongoose)
-- Auth: JWT + bcrypt password hashing
-
-## Features Implemented
-- Landing page with role selection (Student or Staff)
-- Student login with Create Account flow
-- Staff login with role-based access
-- Student dashboard with sidebar sections: profile icon area, dashboard, skills, friends, messages, settings, logout
-- First-login profile completion and anytime profile update
-- Student profile fields: photo, bio, skills, projects, certifications, achievements, department, year, links
-- Friends system: search students, send request, accept/reject request
-- Chat: students can message connected friends
-- Staff dashboard:
-  - search students by name, skill, department, year
-  - view full profile details
-  - contact/message selected student
-- Responsive modern UI with animated transitions
+- Auth: JWT + bcrypt
 
 ## Project Structure
-- `server/` Express API + MongoDB models
-- `client/` React app
+- `client/` frontend
+- `server/` backend API + socket server
 
-## MongoDB Compass Setup
-1. Open MongoDB Compass.
-2. Use this URI (local MongoDB default):
-   - `mongodb://127.0.0.1:27017/tracker`
-3. Create/open database `tracker`.
+## Local Run
 
-## Backend Setup
-1. Open terminal in `tracker/server`
-2. Install dependencies:
-   - `npm install`
-3. Create `.env` from `.env.example`:
-   - `PORT=5000`
-   - `MONGO_URI=mongodb://127.0.0.1:27017/tracker`
-   - `JWT_SECRET=your-strong-secret`
-   - `CLIENT_URL=http://localhost:5173`
-4. Run backend:
-   - `npm run dev`
+### 1) Backend
+```bash
+cd server
+npm install
+cp .env.example .env
+npm run dev
+```
 
-## Frontend Setup
-1. Open terminal in `tracker/client`
-2. Install dependencies:
-   - `npm install`
-3. Create `.env` from `.env.example`:
-   - `VITE_API_URL=http://localhost:5000/api`
-4. Run frontend:
-   - `npm run dev`
+Required `server/.env` keys:
+- `PORT=5000`
+- `MONGO_URI=...`
+- `JWT_SECRET=...`
+- `CLIENT_URL=http://localhost:5173`
+- `CLIENT_URLS=http://localhost:5173,https://shadow143-art.github.io`
 
-## API Overview
-- Auth:
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-- Student:
-  - `GET /api/student/profile`
-  - `PUT /api/student/profile`
-  - `GET /api/student/search`
-- Friends:
-  - `GET /api/friends/state`
-  - `POST /api/friends/request`
-  - `POST /api/friends/respond`
-- Messages:
-  - `GET /api/messages/:peerId`
-  - `POST /api/messages`
-- Staff:
-  - `GET /api/staff/students`
-  - `GET /api/staff/students/:id`
+### 2) Frontend
+```bash
+cd client
+npm install
+cp .env.example .env
+npm run dev
+```
 
-## Security Notes
-- Passwords are hashed with bcrypt.
-- JWT-based protected APIs.
-- Role checks enforce student/staff authorization on routes.
+Default frontend env:
+- `VITE_API_URL=http://localhost:5000/api`
+- `VITE_BASE_PATH=` (leave empty for local/normal hosting)
 
-## Optional Next Upgrades
-- Socket.IO for real-time chat
-- File upload (Cloudinary/S3) for profile photos
-- Rate limiting + helmet middleware
-- Refresh tokens and secure cookie auth
+## Easy Production Deploy (Recommended)
+
+Use two hosts:
+1. Backend on Render (Web Service)
+2. Frontend on Vercel (or Render Static Site)
+
+### Backend (Render)
+- Root directory: `server`
+- Build command: `npm install`
+- Start command: `npm start`
+- Environment variables:
+  - `MONGO_URI`
+  - `JWT_SECRET`
+  - `CLIENT_URL=https://<your-frontend-domain>`
+  - `CLIENT_URLS=https://<your-frontend-domain>,http://localhost:5173`
+
+### Frontend (Vercel / Render Static)
+- Root directory: `client`
+- Build command: `npm install && npm run build`
+- Output directory: `dist`
+- Environment variable:
+  - `VITE_API_URL=https://<your-backend-domain>/api`
+
+Then redeploy frontend.
+
+## GitHub Pages Note
+GitHub Pages is static hosting only. UI can load there, but login/register/chat need a live backend URL. If you use GitHub Pages, set:
+- `VITE_BASE_PATH=/ebi/`
+- `VITE_API_URL=https://<your-backend-domain>/api`
+
+and rebuild/publish.
