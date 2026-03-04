@@ -36,12 +36,17 @@ export const emitToUser = (userId, event, payload) => {
   ioInstance.to(`user:${String(userId)}`).emit(event, payload);
 };
 
-export const initSocket = (server, clientOrigin) => {
+export const initSocket = (server, allowedOrigins = []) => {
   if (ioInstance) return ioInstance;
 
   ioInstance = new Server(server, {
     cors: {
-      origin: clientOrigin,
+      origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (!allowedOrigins.length) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error(`Origin ${origin} not allowed by Socket.IO CORS`));
+      },
       credentials: true
     }
   });

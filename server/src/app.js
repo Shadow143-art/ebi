@@ -17,12 +17,38 @@ const app = express();
 
 connectDB();
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true
-  })
-);
+const parseAllowedOrigins = () => {
+  const raw = [process.env.CLIENT_URL, process.env.CLIENT_URLS]
+    .filter(Boolean)
+    .join(",");
+
+  return Array.from(
+    new Set(
+      raw
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    )
+  );
+};
+
+const allowedOrigins = parseAllowedOrigins();
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow tools/non-browser clients with no Origin header.
+    if (!origin) return callback(null, true);
+
+    // Allow all when no origin is configured.
+    if (!allowedOrigins.length) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 
@@ -42,7 +68,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const httpServer = createServer(app);
-initSocket(httpServer, process.env.CLIENT_URL);
+initSocket(httpServer, allowedOrigins);
 
 const server = httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
