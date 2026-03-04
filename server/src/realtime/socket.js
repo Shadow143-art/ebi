@@ -36,15 +36,25 @@ export const emitToUser = (userId, event, payload) => {
   ioInstance.to(`user:${String(userId)}`).emit(event, payload);
 };
 
+const normalizeOrigin = (origin = "") => origin.trim().replace(/\/+$/, "");
+
 export const initSocket = (server, allowedOrigins = []) => {
   if (ioInstance) return ioInstance;
+
+  const normalizedAllowedOrigins = Array.from(
+    new Set((allowedOrigins || []).map(normalizeOrigin).filter(Boolean))
+  );
 
   ioInstance = new Server(server, {
     cors: {
       origin(origin, callback) {
         if (!origin) return callback(null, true);
-        if (!allowedOrigins.length) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
+
+        const incomingOrigin = normalizeOrigin(origin);
+        if (normalizedAllowedOrigins.includes(incomingOrigin)) {
+          return callback(null, true);
+        }
+
         return callback(new Error(`Origin ${origin} not allowed by Socket.IO CORS`));
       },
       credentials: true

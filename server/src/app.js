@@ -17,19 +17,22 @@ const app = express();
 
 connectDB();
 
-const parseAllowedOrigins = () => {
-  const raw = [process.env.CLIENT_URL, process.env.CLIENT_URLS]
-    .filter(Boolean)
-    .join(",");
+const normalizeOrigin = (origin = "") => origin.trim().replace(/\/+$/, "");
 
-  return Array.from(
-    new Set(
-      raw
-        .split(",")
-        .map((origin) => origin.trim())
-        .filter(Boolean)
-    )
-  );
+const parseAllowedOrigins = () => {
+  const defaultOrigins = [
+    "http://localhost:5173",
+    "https://shadow143-art.github.io"
+  ];
+
+  const envOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URLS]
+    .filter(Boolean)
+    .join(",")
+    .split(",")
+    .map(normalizeOrigin)
+    .filter(Boolean);
+
+  return Array.from(new Set([...defaultOrigins, ...envOrigins]));
 };
 
 const allowedOrigins = parseAllowedOrigins();
@@ -38,10 +41,9 @@ const corsOptions = {
     // Allow tools/non-browser clients with no Origin header.
     if (!origin) return callback(null, true);
 
-    // Allow all when no origin is configured.
-    if (!allowedOrigins.length) return callback(null, true);
+    const incomingOrigin = normalizeOrigin(origin);
+    if (allowedOrigins.includes(incomingOrigin)) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true

@@ -3,11 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tracker</title>
-    <script type="module" crossorigin src="/ebi/assets/index-CP8e2tkl.js"></script>
-    <link rel="stylesheet" crossorigin href="/ebi/assets/index-BmyNuUd6.css">
+    <title>Tracker Redirect</title>
+    <script>
+      (function () {
+        var base = "/ebi";
+        var loc = window.location;
+        var path = loc.pathname.indexOf(base) === 0 ? loc.pathname.slice(base.length) : loc.pathname;
+        if (!path) path = "/";
+        var target = base + "#" + path + loc.search + loc.hash;
+        window.location.replace(target);
+      })();
+    </script>
   </head>
-  <body>
-    <div id="root"></div>
-  </body>
+  <body></body>
 </html>
