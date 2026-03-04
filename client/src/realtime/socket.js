@@ -3,9 +3,17 @@ import { io } from "socket.io-client";
 let socketInstance = null;
 let currentToken = "";
 
-const resolveApiBase = () =>
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
+const resolveApiBase = () => {
+  const envApiBase = String(import.meta.env.VITE_API_URL || "").trim();
+  const isLocalApi = /localhost|127\.0\.0\.1/i.test(envApiBase);
+
+  // Safety: never bake localhost API into production builds.
+  if (!import.meta.env.DEV && isLocalApi) {
+    return "/api";
+  }
+
+  return envApiBase || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
+};
 
 const resolveSocketUrl = () => resolveApiBase().replace(/\/api\/?$/, "");
 
