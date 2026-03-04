@@ -71,3 +71,21 @@ GitHub Pages is static hosting only. UI can load there, but login/register/chat 
 - `VITE_API_URL=https://<your-backend-domain>/api`
 
 and rebuild/publish.
+
+## Android APK (Auto Build)
+
+A native Android WebView wrapper is included in `android-app/`.
+
+### Build from GitHub Actions
+1. Open your repo on GitHub.
+2. Go to `Actions` -> `Build APK`.
+3. Click `Run workflow`.
+4. After completion, download artifact `tracker-debug-apk`.
+
+### App Details
+- Package: `com.shadow143.ebi`
+- Web URL loaded in app: `https://shadow143-art.github.io/ebi/#/`
+
+### Change app URL
+Edit:
+- `android-app/app/src/main/res/values/strings.xml` -> `home_url`
